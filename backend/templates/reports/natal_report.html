@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Horoscopus — Натальный отчёт</title>
+    <style>
+        :root {
+            --color-primary: #2c3e50;
+            --color-secondary: #8e44ad;
+            --color-muted: #7f8c8d;
+            --color-border: #dfe6e9;
+        }
+
+        body {
+            font-family: "Inter", "Segoe UI", sans-serif;
+            margin: 0;
+            padding: 32px;
+            color: var(--color-primary);
+            line-height: 1.6;
+        }
+
+        h1, h2, h3 {
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        h1 {
+            font-size: 28px;
+        }
+
+        h2 {
+            font-size: 22px;
+            border-bottom: 2px solid var(--color-border);
+            padding-bottom: 6px;
+        }
+
+        h3 {
+            font-size: 18px;
+            color: var(--color-secondary);
+        }
+
+        .metadata {
+            font-size: 12px;
+            color: var(--color-muted);
+            margin-bottom: 24px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 18px;
+            font-size: 14px;
+        }
+
+        th, td {
+            border-bottom: 1px solid var(--color-border);
+            text-align: left;
+            padding: 8px 6px;
+        }
+
+        th {
+            font-weight: 600;
+            color: var(--color-secondary);
+        }
+
+        .section {
+            margin-bottom: 28px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 999px;
+            background-color: rgba(142, 68, 173, 0.1);
+            color: var(--color-secondary);
+            font-size: 12px;
+            font-weight: 600;
+            margin-right: 8px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+
+        .card {
+            border: 1px solid var(--color-border);
+            border-radius: 12px;
+            padding: 16px;
+        }
+
+        .card h3 {
+            margin-top: 0;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Натальный отчёт Horoscopus</h1>
+        <div class="metadata">
+            <div>Пользователь: {{ owner.get_full_name|default:owner.username }}</div>
+            <div>Сгенерировано: {{ generated_at|date:"d.m.Y H:i" }}</div>
+            {% if chart %}
+                <div>Натальная карта: {{ chart.title }} — {{ chart.event_datetime|date:"d.m.Y H:i" }}</div>
+                <div>Место рождения: {{ chart.event_location }}</div>
+            {% endif %}
+            {% if forecast %}
+                <div>Прогнозный период: {{ forecast.start_date }} — {{ forecast.end_date }}</div>
+                <div>Горизонт: {{ forecast.get_horizon_display }}</div>
+            {% endif %}
+        </div>
+    </header>
+
+    {% if chart %}
+        <section class="section">
+            <h2>Позиции планет</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Планета</th>
+                        <th>Знак</th>
+                        <th>Дом</th>
+                        <th>Градус</th>
+                        <th>Скорость</th>
+                        <th>Ретроградность</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for position in positions %}
+                        <tr>
+                            <td>{{ position.body.name }}</td>
+                            <td>{{ position.sign|title }}</td>
+                            <td>{{ position.house }}</td>
+                            <td>{{ position.absolute_degree }}</td>
+                            <td>{% if position.speed %}{{ position.speed }}°/д{% else %}—{% endif %}</td>
+                            <td>{% if position.retrograde %}Да{% else %}Нет{% endif %}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
+
+        <section class="section">
+            <h2>Аспекты</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Источник</th>
+                        <th>Цель</th>
+                        <th>Тип</th>
+                        <th>Орб</th>
+                        <th>Интенсивность</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for aspect in aspects %}
+                        <tr>
+                            <td>{{ aspect.source_body.name }}</td>
+                            <td>{{ aspect.target_body.name }}</td>
+                            <td>{{ aspect.get_aspect_type_display }}</td>
+                            <td>{{ aspect.orb }}</td>
+                            <td>{{ aspect.intensity }}</td>
+                        </tr>
+                    {% empty %}
+                        <tr><td colspan="5">Существенных аспектов не обнаружено.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
+
+        <section class="section grid">
+            <div class="card">
+                <h3>Сила планет</h3>
+                {% for strength in strengths %}
+                    <div>
+                        <span class="badge">{{ strength.body.name }}</span>
+                        <strong>{{ strength.score }}</strong> / 100
+                    </div>
+                {% empty %}
+                    <p>Расчёт силы планет будет доступен после полного вычислительного цикла.</p>
+                {% endfor %}
+            </div>
+
+            <div class="card">
+                <h3>Интегральные показатели</h3>
+                {% for indicator in indicators %}
+                    <div>
+                        <span class="badge">{{ indicator.category|title }}</span>
+                        {{ indicator.name|title }} — {{ indicator.value }}%
+                    </div>
+                {% empty %}
+                    <p>Интегральные показатели будут сформированы после полной обработки.</p>
+                {% endfor %}
+            </div>
+        </section>
+    {% endif %}
+
+    {% if forecast %}
+        <section class="section">
+            <h2>Прогноз</h2>
+            {% for entry in forecast.entries.all %}
+                <div class="card">
+                    <h3>{{ entry.title }}</h3>
+                    <div class="metadata">
+                        {{ entry.timeframe_start|date:"d.m.Y" }} — {{ entry.timeframe_end|date:"d.m.Y" }}
+                    </div>
+                    <p>{{ entry.summary }}</p>
+                    {% if entry.opportunities %}
+                        <p><strong>Возможности:</strong> {{ entry.opportunities }}</p>
+                    {% endif %}
+                    {% if entry.challenges %}
+                        <p><strong>Вызовы:</strong> {{ entry.challenges }}</p>
+                    {% endif %}
+                    {% if entry.recommendations %}
+                        <p><strong>Рекомендации:</strong> {{ entry.recommendations }}</p>
+                    {% endif %}
+                </div>
+            {% empty %}
+                <p>Прогностические записи будут добавлены после завершения расчёта.</p>
+            {% endfor %}
+        </section>
+    {% endif %}
+</body>
+</html>
+
