@@ -1,5 +1,6 @@
 import { clsx } from "clsx";
-import { forwardRef, SelectHTMLAttributes } from "react";
+import { forwardRef } from "react";
+import type { SelectHTMLAttributes } from "react";
 
 export type SelectProps = SelectHTMLAttributes<HTMLSelectElement>;
 

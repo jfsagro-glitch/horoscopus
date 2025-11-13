@@ -1,5 +1,5 @@
 import { clsx } from "clsx";
-import { HTMLAttributes } from "react";
+import type { HTMLAttributes } from "react";
 
 export interface BadgeProps extends HTMLAttributes<HTMLSpanElement> {
   tone?: "neutral" | "success" | "warning" | "danger" | "primary";

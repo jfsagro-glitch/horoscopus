@@ -1,5 +1,6 @@
 import { clsx } from "clsx";
-import { forwardRef, InputHTMLAttributes } from "react";
+import { forwardRef } from "react";
+import type { InputHTMLAttributes } from "react";
 
 export type InputProps = InputHTMLAttributes<HTMLInputElement>;
 

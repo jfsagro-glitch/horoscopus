@@ -1,12 +1,13 @@
 import { useMemo, useState } from "react";
 import { Controller } from "react-hook-form";
-import { useBirthDataForm, BirthDataFormValues } from "@/features/onboarding/hooks/useBirthDataForm";
+import { useBirthDataForm } from "@/features/onboarding/hooks/useBirthDataForm";
+import type { BirthDataFormValues } from "@/features/onboarding/hooks/useBirthDataForm";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import { Button } from "@/components/ui/Button";
 import { Spinner } from "@/components/ui/Spinner";
 import { useAutocompleteLocation } from "@/hooks/useAutocompleteLocation";
-import { LocationSuggestion } from "@/lib/types";
+import type { LocationSuggestion } from "@/lib/types";
 
 const timezoneOptions = [
   "UTC",

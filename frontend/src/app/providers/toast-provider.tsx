@@ -1,5 +1,6 @@
 import * as RadixToast from "@radix-ui/react-toast";
-import { ReactNode, useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
+import type { ReactNode } from "react";
 import { ToastContext } from "./toast-context";
 
 interface ToastProviderProps {

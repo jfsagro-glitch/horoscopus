@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
 import { apiClient } from "@/lib/api/client";
 import { endpoints } from "@/lib/api/endpoints";
-import { LocationSuggestion } from "@/lib/types";
+import type { LocationSuggestion } from "@/lib/types";
 
 interface UseAutocompleteLocationOptions {
   query: string;
