@@ -2,25 +2,33 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
+const toNumber = (value: unknown) => {
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return value;
+  }
+  if (typeof value === "string") {
+    const trimmed = value.trim();
+    if (trimmed === "") {
+      return undefined;
+    }
+    const parsed = Number(trimmed);
+    if (Number.isFinite(parsed)) {
+      return parsed;
+    }
+  }
+  return undefined;
+};
+
 export const birthDataSchema = z.object({
   birthDate: z.string().min(1, "Укажите дату рождения"),
   birthTime: z.string().min(1, "Укажите время рождения"),
   timezone: z.string().min(1, "Выберите часовой пояс"),
-  birthLocationId: z.coerce
-    .number({
-      invalid_type_error: "Выберите место рождения",
-      required_error: "Выберите место рождения",
-    })
-    .int()
+  birthLocationId: z
+    .preprocess((value) => toNumber(value) ?? value, z.number())
+    .int("Выберите место рождения")
     .positive("Выберите место рождения"),
   currentLocationId: z.preprocess(
-    (value) => {
-      if (value === "" || value === null || value === undefined) {
-        return undefined;
-      }
-      const numeric = Number(value);
-      return Number.isFinite(numeric) ? numeric : value;
-    },
+    (value) => toNumber(value) ?? undefined,
     z.number().int().positive().optional(),
   ),
 });
@@ -35,8 +43,6 @@ export function useBirthDataForm(defaultValues?: Partial<BirthDataFormValues>) {
       birthDate: "",
       birthTime: "",
       timezone: "UTC",
-      birthLocationId: undefined,
-      currentLocationId: undefined,
       ...defaultValues,
     },
   });
